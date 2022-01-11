@@ -109,17 +109,17 @@ library(stargazer)
 
 ### データ
 
-`{MASS}`パッケージに入っているボストンの住宅価格データを使います．詳細は[こちらのサイト](https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html)ないしは`?MASS::Boston`で見れます．
+大学の出願状況データを使います．変数の詳細は[こちらのサイト](https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html)ないしは`?MASS::Boston`で見れます．
 
 ``` r
 ## data source
-data("Boston", package = "MASS")
+df <- read.csv("College_editted.csv")
 ```
 
--   観察単位: 町
--   変数 (`?MASS::Boston`参照)  
-    – medv: median value of owner-occupied homes in $1000s (目的変数)  
-    – crim: per capita crime rate by town  
+-   観察単位: 町大学
+-   変数  
+    – : (目的変数)  
+    – : per capita crime rate by town  
     – zn: proportion of residential land zone for lots over 25,000
     sq.ft.  
     – indus: proportion of non-retail business acre per town  
@@ -139,28 +139,32 @@ data("Boston", package = "MASS")
 記述統計を見てみましょう．
 
 ``` r
-Boston %>% stargazer(type = "text")
+df %>% stargazer(type = "text")
 ```
 
     ## 
-    ## ===============================================================
-    ## Statistic  N   Mean   St. Dev.  Min   Pctl(25) Pctl(75)   Max  
-    ## ---------------------------------------------------------------
-    ## crim      506  3.614   8.602   0.006   0.082    3.677   88.976 
-    ## zn        506 11.364   23.322    0       0       12.5     100  
-    ## indus     506 11.137   6.860   0.460   5.190    18.100  27.740 
-    ## chas      506  0.069   0.254     0       0        0        1   
-    ## nox       506  0.555   0.116   0.385   0.449    0.624    0.871 
-    ## rm        506  6.285   0.703   3.561   5.886    6.624    8.780 
-    ## age       506 68.575   28.149  2.900   45.025   94.075  100.000
-    ## dis       506  3.795   2.106   1.130   2.100    5.188   12.126 
-    ## rad       506  9.549   8.707     1       4        24      24   
-    ## tax       506 408.237 168.537   187     279      666      711  
-    ## ptratio   506 18.456   2.165   12.600  17.400   20.200  22.000 
-    ## black     506 356.674  91.295  0.320  375.378  396.225  396.900
-    ## lstat     506 12.653   7.141   1.730   6.950    16.955  37.970 
-    ## medv      506 22.533   9.197     5      17.0      25      50   
-    ## ---------------------------------------------------------------
+    ## ===================================================================
+    ## Statistic    N     Mean    St. Dev.   Min  Pctl(25) Pctl(75)  Max  
+    ## -------------------------------------------------------------------
+    ## Private     777   0.727      0.446     0      0        1       1   
+    ## Apps        777 3,001.638  3,870.201  81     776     3,624   48,094
+    ## Accept      777 2,018.804  2,451.114  72     604     2,424   26,330
+    ## Enroll      777  779.973    929.176   35     242      902    6,392 
+    ## Top10perc   777   27.559    17.640     1      15       35      96  
+    ## Top25perc   777   55.797    19.805     9      41       69     100  
+    ## F.Undergrad 777 3,699.907  4,850.421  139    992     4,005   31,643
+    ## P.Undergrad 777  855.299   1,522.432   1      95      967    21,836
+    ## Outstate    777 10,440.670 4,023.016 2,340  7,320    12,925  21,700
+    ## Room.Board  777 4,357.526  1,096.696 1,780  3,597    5,050   8,124 
+    ## Books       777  549.381    165.105   96     470      600    2,340 
+    ## Personal    777 1,340.642   677.071   250    850     1,700   6,800 
+    ## PhD         777   72.660    16.328     8      62       85     103  
+    ## Terminal    777   79.703    14.722    24      71       92     100  
+    ## S.F.Ratio   777   14.090     3.958   2.500  11.500   16.500  39.800
+    ## perc.alumni 777   22.744    12.392     0      13       31      64  
+    ## Expend      777 9,660.171  5,221.768 3,186  6,751    10,830  56,233
+    ## Grad.Rate   777   65.463    17.178    10      53       78     118  
+    ## -------------------------------------------------------------------
 
 ## 2-1. 学習
 
@@ -169,8 +173,8 @@ Boston %>% stargazer(type = "text")
 
 ``` r
 # 予測変数と目的変数別のオブジェクトに格納
-X <- Boston[, -14]
-y <- Boston$medv
+X <- df[, -2]
+y <- df$Apps
 ```
 
 データセットをランダムに学習データとテストデータに分割します．
@@ -209,7 +213,7 @@ mdl_ols_simple <- lm(data = X_train, formula = y_train ~ .)
 ## 予測変数の交差項と2乗項を新たな予測変数として作成
 X_complex <- recipe(~ ., data = X) %>%
   step_interact(~all_predictors():all_predictors()) %>% # 交差項を加える
-  step_poly(-chas) %>% # 2乗項を加える
+  step_poly(-Private) %>% # 2乗項を加える
   prep() %>% 
   bake(X) 
 
@@ -234,13 +238,13 @@ mdl_ols_complex <- lm(data = X_complex_train, formula = y_train ~ .)
 summary(mdl_ols_simple)$adj.r.squared
 ```
 
-    ## [1] 0.725237
+    ## [1] 0.9300762
 
 ``` r
 summary(mdl_ols_complex)$adj.r.squared
 ```
 
-    ## [1] 0.9136481
+    ## [1] 0.9876334
 
 ## 2-2. 予測
 
@@ -251,18 +255,12 @@ pred_ols_simple <- predict(mdl_ols_simple, X_test)
 pred_ols_complex <- predict(mdl_ols_complex, X_complex_test)
 ```
 
-    ## Warning in predict.lm(mdl_ols_complex, X_complex_test): prediction from a rank-
-    ## deficient fit may be misleading
-
 また，モデルに学習データを入力した場合の予測値も比較のために定義しておきましょう．
 
 ``` r
 pred_ols_simple_train <- predict(mdl_ols_simple, X_train)
 pred_ols_complex_train <- predict(mdl_ols_complex, X_complex_train)
 ```
-
-    ## Warning in predict.lm(mdl_ols_complex, X_complex_train): prediction from a rank-
-    ## deficient fit may be misleading
 
 ## 2-3. モデル評価
 
@@ -290,9 +288,9 @@ rownames(rslt_mse_ols) <- c("training", "test")
 rslt_mse_ols
 ```
 
-    ##            simple   complex
-    ## training 21.13066  3.821487
-    ## test     25.89717 16.404760
+    ##           simple    complex
+    ## training 1020740   94447.92
+    ## test     1318296 7638216.30
 
 # 3. 汎化誤差
 
@@ -423,5 +421,5 @@ rownames(rslt_mse_penalized) <- "MSE"
 rslt_mse_penalized
 ```
 
-    ##          OLS    Ridge   Lasso
-    ## MSE 16.40476 25.84726 19.1522
+    ##         OLS   Ridge   Lasso
+    ## MSE 7638216 2246839 2644418

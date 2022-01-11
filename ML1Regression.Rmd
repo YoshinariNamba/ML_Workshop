@@ -88,15 +88,20 @@ library(stargazer)
 ```
 
 ### データ
-`{MASS}`パッケージに入っているボストンの住宅価格データを使います．詳細は[こちらのサイト](https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html)ないしは`?MASS::Boston`で見れます．
-```{r}
+大学の出願状況データを使います．変数の詳細は[こちらのサイト](https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html)ないしは`?MASS::Boston`で見れます．
+```{r, eval=FALSE}
 ## data source
-data("Boston", package = "MASS")
+df <- read.csv("College_editted.csv")
 ```
-- 観察単位: 町
-- 変数 (`?MASS::Boston`参照)   
--- medv: median value of owner-occupied homes in \$1000s (目的変数)   
--- crim: per capita crime rate by town  
+
+```{r, include=FALSE}
+## data source
+df <- read.csv("./dat/College_editted.csv")
+```
+- 観察単位: 町大学
+- 変数    
+-- :  (目的変数)   
+-- : per capita crime rate by town  
 -- zn: proportion of residential land zone for lots over 25,000 sq.ft.  
 -- indus: proportion of non-retail business acre per town  
 -- chas: Charles River dummy variable  
@@ -112,15 +117,15 @@ data("Boston", package = "MASS")
 
 記述統計を見てみましょう．
 ```{r}
-Boston %>% stargazer(type = "text")
+df %>% stargazer(type = "text")
 ```
 
 ## 2-1. 学習
 後で使用する`{glmnet}`パッケージの都合上，予測変数と目的変数をそれぞれ`X`, `y`とし，別のオブジェクトとして定義します．
 ```{r}
 # 予測変数と目的変数別のオブジェクトに格納
-X <- Boston[, -14]
-y <- Boston$medv
+X <- df[, -2]
+y <- df$Apps
 ```
 
 データセットをランダムに学習データとテストデータに分割します．
@@ -153,7 +158,7 @@ mdl_ols_simple <- lm(data = X_train, formula = y_train ~ .)
 ## 予測変数の交差項と2乗項を新たな予測変数として作成
 X_complex <- recipe(~ ., data = X) %>%
   step_interact(~all_predictors():all_predictors()) %>% # 交差項を加える
-  step_poly(-chas) %>% # 2乗項を加える
+  step_poly(-Private) %>% # 2乗項を加える
   prep() %>% 
   bake(X) 
 
