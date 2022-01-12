@@ -14,8 +14,10 @@ Yoshinari Namba
 
 ### タイムテーブル
 
--   \~15:20: 機械学習とは  
+-   \~15:20: 機械学習とは，
 -   \~15:40: ハンズオン1
+-   \~16:00: 汎化誤差
+-   \~16:00: ハンズオン2
 
 # 1. 機械学習とは
 
@@ -60,7 +62,9 @@ Yoshinari Namba
     -   連続変数の予測誤差は多くの場合 **平均二乗誤差(Mean Squared
         Error; MSE)** で計測します．
 
-平均二乗誤差MSEは次のように定義されます．
+#### 予測誤差
+
+**平均二乗誤差(MSE)**は次のように定義されます．
 
 ![
   \\text{MSE}=\\frac{1}{N}\\sum\_{i=1}^{N}(y_i-\\hat{y}\_i)^2
@@ -87,7 +91,7 @@ Yoshinari Namba
 # 2. ハンズオン1: OLSを使って予測
 
 上記のステップに従って，まずは最小2乗法を使って教師あり学習を実行してみましょう！  
-町のデータを使って住宅価格を予測したいケースを考えます．モチベーションはあくまで
+大学のデータを使って出願者数を予測したいケースを考えます．モチベーションはあくまで
 **予測** であって， **変数の間の関係性には関心がない状況**
 を仮定します．
 
@@ -107,7 +111,7 @@ library(stargazer)
 
 ### データ
 
-大学の出願状況データを使います．変数の詳細は[こちらのサイト](https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html)で見れます．
+大学の出願状況データを使います．元データの詳細は[こちらのp5](https://cran.r-project.org/web/packages/ISLR/ISLR.pdf)を参照してください．
 
 ``` r
 ## data source
@@ -227,21 +231,17 @@ X_complex_test <- X_complex[-id_train, ]
 学習データを使って複雑モデルverのOLSを実行し，モデルを`mdl_ols_complex`と名付けます．
 
 ``` r
-mdl_ols_complex <- lm(data = X_complex_train, formula = y_train ~ .)
+mdl_ols_complex <- 
 ```
 
 このケースの目的は予測ですが，一応モデルの説明力を比較してみましょう．
 
 ``` r
 # 自由度調整済み決定係数の比較
-summary(mdl_ols_simple)$adj.r.squared
+summary(mdl_ols_simple)$adj.r.squared; summary(mdl_ols_complex)$adj.r.squared
 ```
 
     ## [1] 0.9300762
-
-``` r
-summary(mdl_ols_complex)$adj.r.squared
-```
 
     ## [1] 0.9876334
 
@@ -257,8 +257,8 @@ pred_ols_complex <- predict(mdl_ols_complex, X_complex_test)
 また，モデルに学習データを入力した場合の予測値も比較のために定義しておきましょう．
 
 ``` r
-pred_ols_simple_train <- predict(mdl_ols_simple, X_train)
-pred_ols_complex_train <- predict(mdl_ols_complex, X_complex_train)
+pred_ols_simple_train <- 
+pred_ols_complex_train <- 
 ```
 
 ## 2-3. モデル評価
@@ -272,8 +272,8 @@ mse_ols_simple <- sum( ( y_test - pred_ols_simple )^2 ) / length(y_test)
 mse_ols_complex <- sum( ( y_test - pred_ols_complex )^2 ) / length(y_test)
 
 ## 学習データの予測誤差
-mse_ols_simple_train <- sum( ( y_train - pred_ols_simple_train )^2 ) / length(y_train)
-mse_ols_complex_train <- sum( ( y_train - pred_ols_complex_train )^2 ) / length(y_train)
+mse_ols_simple_train <- 
+mse_ols_complex_train <- 
 ```
 
 予測誤差を比較してみましょう．
@@ -338,7 +338,7 @@ rslt_mse_ols
 
 確率変数が![D](https://latex.codecogs.com/png.latex?D "D")と![\\epsilon](https://latex.codecogs.com/png.latex?%5Cepsilon "\epsilon")の2種類あることに注意してください．  
 ノイズ![\\sigma^2](https://latex.codecogs.com/png.latex?%5Csigma%5E2 "\sigma^2")はどんなモデルでも除外できない誤差です．モデリングの工夫によって汎化誤差を縮小するにはバイアスとバリアンスの和を縮小する必要があります．  
-バイアスは「真のモデル」と「学習したモデル」のズレを表します．(図解)
+バイアスは「真のモデル」と「学習したモデル」のズレを表します．
 バリアンスは学習モデルで予測したときの予測値の分散を表します．
 複雑なモデルではバイアスは縮小する一方でバリアンスが拡大します．
 
@@ -351,19 +351,18 @@ rslt_mse_ols
 ![
 \\begin{align}
   y 
-  &= \\beta_0 + \\beta_1X_1 + \\cdots + \\beta_pX_p + \\epsilon
+  &= \\beta_0 + \\beta_1X_1 + \\cdots + \\beta_pX_p + \\epsilon \\nonumber 
 \\end{align}
-](https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20y%20%0A%20%20%26%3D%20%5Cbeta_0%20%2B%20%5Cbeta_1X_1%20%2B%20%5Ccdots%20%2B%20%5Cbeta_pX_p%20%2B%20%5Cepsilon%0A%5Cend%7Balign%7D%0A "
+](https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A%20%20y%20%0A%20%20%26%3D%20%5Cbeta_0%20%2B%20%5Cbeta_1X_1%20%2B%20%5Ccdots%20%2B%20%5Cbeta_pX_p%20%2B%20%5Cepsilon%20%5Cnonumber%20%0A%5Cend%7Balign%7D%0A "
 \begin{align}
   y 
-  &= \beta_0 + \beta_1X_1 + \cdots + \beta_pX_p + \epsilon
+  &= \beta_0 + \beta_1X_1 + \cdots + \beta_pX_p + \epsilon \nonumber 
 \end{align}
 ")
 
 最小二乗法ではデータの
 **誤差(![y_i - \\hat{y}\_i](https://latex.codecogs.com/png.latex?y_i%20-%20%5Chat%7By%7D_i "y_i - \hat{y}_i"))の2乗和**
-を最小化します．一方で，罰則付き回帰モデルでは残差二乗和にパラメータの大きさ(2乗
-or 絶対値)を足したものを最小化します．
+を最小化します．罰則付き回帰モデルでは残差二乗和に**パラメータの2乗や絶対値**を足したものを最小化します．
 
 ![
 \\begin{align\*}
@@ -379,7 +378,11 @@ or 絶対値)を足したものを最小化します．
 \end{align*}
 ")
 
-この罰則(![\\lambda\\sum\_{k=0}^p\\beta_k^2](https://latex.codecogs.com/png.latex?%5Clambda%5Csum_%7Bk%3D0%7D%5Ep%5Cbeta_k%5E2 "\lambda\sum_{k=0}^p\beta_k^2")または![\\lambda\\sum\_{k=0}^p\|\\beta_k\|](https://latex.codecogs.com/png.latex?%5Clambda%5Csum_%7Bk%3D0%7D%5Ep%7C%5Cbeta_k%7C "\lambda\sum_{k=0}^p|\beta_k|"))を目的関数に含めることで，![y](https://latex.codecogs.com/png.latex?y "y")の予測にあまり役に立たない変数のパラメータは小さく推定されます．  
+![\\beta_k^2](https://latex.codecogs.com/png.latex?%5Cbeta_k%5E2 "\beta_k^2")
+や
+![\|\\beta_k\|](https://latex.codecogs.com/png.latex?%7C%5Cbeta_k%7C "|\beta_k|")
+が罰則です．
+この罰則を目的関数に含めることで，予測にあまり役立たない変数のパラメータは小さく推定されます．  
 なお，ここでハイパーパラメータ![\\lambda](https://latex.codecogs.com/png.latex?%5Clambda "\lambda")は交差検証によってチューニングされます．
 
 # 4. ハンズオン2: 罰則付き回帰モデルの実装
@@ -395,6 +398,7 @@ mdl_lasso <- cv.glmnet(x = as.matrix(X_complex_train), y = y_train, alpha = 0)
 ```
 
 `alpha = 1`と指定するとリッジ回帰を実行し，`alpha = 0`と指定するとラッソ回帰を実行します．
+`{glmnet}`の関数は予測変数を`matrix`型に直さないとエラーになるようです．
 
 ## 4-2. 予測
 
@@ -402,9 +406,11 @@ mdl_lasso <- cv.glmnet(x = as.matrix(X_complex_train), y = y_train, alpha = 0)
 ## 予測
 pred_ridge <- predict(mdl_ridge, as.matrix(X_complex_test))
 pred_lasso <- predict(mdl_lasso, as.matrix(X_complex_test))
-```
 
-`glmnet`の予測変数は`matrix`型に直さないとエラーになるようです．
+## 学習データでも予測
+pred_ridge_train <- 
+pred_lasso_train <- 
+```
 
 ## 4-3. モデル評価
 
@@ -413,12 +419,34 @@ pred_lasso <- predict(mdl_lasso, as.matrix(X_complex_test))
 mse_ridge <- sum( (y_test - as.vector(pred_ridge))^2 ) / length(y_test)
 mse_lasso <- sum( (y_test - as.vector(pred_lasso))^2 ) / length(y_test)
 
+mse_ridge_train <- sum( (y_train - as.vector(pred_ridge_train))^2 ) / length(y_train)
+mse_lasso_train <- sum( (y_train - as.vector(pred_lasso_train))^2 ) / length(y_train)
+```
+
+結果を見てみます．
+
+``` r
 ## 結果の要約
-rslt_mse_penalized <- data.frame(OLS = mse_ols_complex, Ridge = mse_ridge, Lasso = mse_lasso)
-rownames(rslt_mse_penalized) <- "MSE"
+rslt_mse_penalized <- data.frame(OLS = c(mse_ols_complex_train, mse_ols_complex), 
+                                 Ridge = c(mse_ridge_train, mse_ridge), 
+                                 Lasso = c(mse_lasso_train, mse_lasso))
+rownames(rslt_mse_penalized) <- c("training", "test")
 
 rslt_mse_penalized
 ```
 
-    ##         OLS   Ridge   Lasso
-    ## MSE 7638216 2246839 2644418
+    ##                 OLS   Ridge   Lasso
+    ## training   94447.92 2101714 1972900
+    ## test     7638216.30 2246839 2644418
+
+# 参考文献
+
+-   James, G., Witten, D., Hastie, T., and Tibshirani, R. (2013) *An
+    Introduction to Statistical Learning with applications in R*,
+    <https://www.statlearning.com>, Springer-Verlag, New York
+-   Mullainathan, Sendhil and Jann Spiess (2007), “Machine Learning: An
+    Applied Econometric Approach”, *Journal of Economic Perspectives*
+    Volume 31, Number 2—Spring 2017—Pages 87–106,
+    <https://pubs.aeaweb.org/doi/pdfplus/10.1257/jep.31.2.87>
+-   Wikipedia, Bias-Variance Trade-off,
+    <https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff>
