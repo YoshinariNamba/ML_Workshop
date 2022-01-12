@@ -10,14 +10,14 @@ Yoshinari Namba
 -   **実証経済学と機械学習のアプローチの違いを理解する**
 
 インターン先で機械学習に触れた際に経済学との違いを痛感しました．  
-今日の講義ではその感覚を皆さんに共有できればうれしいです！
+その感覚を皆さんに共有できればと思います！
 
 ### タイムテーブル
 
--   \~15:20: 機械学習とは，
--   \~15:40: ハンズオン1
--   \~16:00: 汎化誤差
--   \~16:00: ハンズオン2
+-   \~15:25: 1. 機械学習とは
+-   \~15:40: 2. ハンズオン1
+-   \~16:15: 3. 汎化誤差の対処
+-   \~16:45: 4. ハンズオン2
 
 # 1. 機械学習とは
 
@@ -64,7 +64,7 @@ Yoshinari Namba
 
 #### 予測誤差
 
-**平均二乗誤差(MSE)**は次のように定義されます．
+**平均二乗誤差(MSE)** は次のように定義されます．
 
 ![
   \\text{MSE}=\\frac{1}{N}\\sum\_{i=1}^{N}(y_i-\\hat{y}\_i)^2
@@ -291,7 +291,7 @@ rslt_mse_ols
     ## training 1020740   94447.92
     ## test     1318296 7638216.30
 
-# 3. 汎化誤差
+# 3. 汎化誤差の対処
 
 ## 3-1. バイアス-バリアンス トレードオフ
 
@@ -336,7 +336,16 @@ rslt_mse_ols
 \end{align*}
 ")
 
-確率変数が![D](https://latex.codecogs.com/png.latex?D "D")と![\\epsilon](https://latex.codecogs.com/png.latex?%5Cepsilon "\epsilon")の2種類あることに注意してください．  
+確率変数が ![D](https://latex.codecogs.com/png.latex?D "D") と
+![\\epsilon](https://latex.codecogs.com/png.latex?%5Cepsilon "\epsilon")
+の2種類あることに注意してください．![\\epsilon](https://latex.codecogs.com/png.latex?%5Cepsilon "\epsilon")
+は平均 ![0](https://latex.codecogs.com/png.latex?0 "0") ，分散
+![\\sigma](https://latex.codecogs.com/png.latex?%5Csigma "\sigma")
+の仮定と ![X](https://latex.codecogs.com/png.latex?X "X")
+と独立であることから期待値を取ると省かれます．  
+データ![D](https://latex.codecogs.com/png.latex?D "D")が確率変数であるため，パラメータ推定に使用したデータでの誤差と新たなデータ(out-of-sample)を使って予測する場合の誤差が異なります．後者は汎化誤差(generalization
+error)と言います．
+
 ノイズ![\\sigma^2](https://latex.codecogs.com/png.latex?%5Csigma%5E2 "\sigma^2")はどんなモデルでも除外できない誤差です．モデリングの工夫によって汎化誤差を縮小するにはバイアスとバリアンスの和を縮小する必要があります．  
 バイアスは「真のモデル」と「学習したモデル」のズレを表します．
 バリアンスは学習モデルで予測したときの予測値の分散を表します．
