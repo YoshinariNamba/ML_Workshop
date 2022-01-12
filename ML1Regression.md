@@ -25,22 +25,19 @@ Yoshinari Namba
     -   記述統計，可視化 etc.  
 -   モデリングを伴う分析
     -   **推論 (inference)**:
-        観測可能な![X](https://latex.codecogs.com/png.latex?X "X")と![Y](https://latex.codecogs.com/png.latex?Y "Y")の関係性を推測する  
+        ![X](https://latex.codecogs.com/png.latex?X "X")と![Y](https://latex.codecogs.com/png.latex?Y "Y")の関係性を推測する  
     -   **予測 (prediction)**:
-        観測可能な変数![X](https://latex.codecogs.com/png.latex?X "X")から観測不能な![Y](https://latex.codecogs.com/png.latex?Y "Y")を予測する
+        ![X](https://latex.codecogs.com/png.latex?X "X")を使って![Y](https://latex.codecogs.com/png.latex?Y "Y")を予測する
 
 ### 機械学習とは
 
--   データから変数間の複雑な構造を学習する
+-   アルゴリズムがデータから最良のルールを導く(data-driven)
     -   経済学: 経済学理論が変数間のルールを決める(theory-driven)  
-    -   機械学習:
-        アルゴリズムがデータから最良のルールを導く(data-driven)  
--   「予測」が主な関心
+-   主な関心は予測 → 予測値
+    (![\\hat{y}](https://latex.codecogs.com/png.latex?%5Chat%7By%7D "\hat{y}"))
+    に関心がある
     -   経済学: パラメータ推定値
         (![\\hat{\\beta}](https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta%7D "\hat{\beta}"))
-        に関心がある  
-    -   機械学習: 予測値
-        (![\\hat{y}](https://latex.codecogs.com/png.latex?%5Chat%7By%7D "\hat{y}"))
         に関心がある
 
 ### 教師あり機械学習の実行方法
@@ -50,18 +47,20 @@ Yoshinari Namba
 
 #### ステップ
 
-この演習では次の3つのステップで教師あり機械学習を実行します．  
-1. **学習**  
-- <u>データ</u>からパラメータを推定してモデルを構築  
-- Rでは`lm()`, `glm()`, `glmnet::glmnet()`など  
-2. **予測**  
-- 構築したモデルに<u>新しいデータ</u>を入力して予測値を算出  
-- Rでは`predict()`など  
-3. **モデル評価**  
--
-実測値と予測値のズレを予測誤差と言います．予測誤差が小さいほど優れたモデルと言えそうです．  
-- 連続変数の予測誤差は多くの場合 **平均二乗誤差(Mean Squared Error;
-MSE)** で計測します．  
+この演習では次の3つのステップで教師あり機械学習を実行します．
+
+1.  **学習**
+    -   <u>データ</u>からパラメータを推定してモデルを構築
+    -   Rでは`lm()`, `glm()`, `glmnet::glmnet()`など
+2.  **予測**
+    -   構築したモデルに<u>新しいデータ</u>を入力して予測値を算出
+    -   Rでは`predict()`など
+3.  **モデル評価**
+    -   実測値と予測値のズレを予測誤差と言います．予測誤差が小さいほど優れたモデルです
+    -   連続変数の予測誤差は多くの場合 **平均二乗誤差(Mean Squared
+        Error; MSE)** で計測します．
+
+平均二乗誤差MSEは次のように定義されます．
 
 ![
   \\text{MSE}=\\frac{1}{N}\\sum\_{i=1}^{N}(y_i-\\hat{y}\_i)^2
@@ -69,11 +68,10 @@ MSE)** で計測します．
   \text{MSE}=\frac{1}{N}\sum_{i=1}^{N}(y_i-\hat{y}_i)^2
 ")
 
-- ![N](https://latex.codecogs.com/png.latex?N "N"): サンプル数  
-- ![y_i](https://latex.codecogs.com/png.latex?y_i "y_i"): 実測値  
--
-![\\hat{y}\_i](https://latex.codecogs.com/png.latex?%5Chat%7By%7D_i "\hat{y}_i"):
-予測値
+-   ![N](https://latex.codecogs.com/png.latex?N "N"): サンプル数
+-   ![y_i](https://latex.codecogs.com/png.latex?y_i "y_i"): 実測値
+-   ![\\hat{y}\_i](https://latex.codecogs.com/png.latex?%5Chat%7By%7D_i "\hat{y}_i"):
+    予測値
 
 #### ポイント
 
@@ -84,7 +82,7 @@ MSE)** で計測します．
 手元のデータセットを **学習データ(training data)** と
 **テストデータ(test data)** に分割して モデルを評価する方法を
 **交差検証(Cross-Validation)** と言います．  
-「同じデータ使えばよくない？」と思うかもしれませんが，学習と予測で同じデータセットを使うと予測精度をうまく評価できなくなります．理由は後ほど説明しますね．
+「同じデータを使えばよくない？」と思うかもしれませんが，学習と予測で同じデータセットを使うと予測精度をうまく評価できなくなります．理由は後ほど説明しますね．
 
 # 2. ハンズオン1: OLSを使って予測
 
@@ -109,32 +107,33 @@ library(stargazer)
 
 ### データ
 
-大学の出願状況データを使います．変数の詳細は[こちらのサイト](https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html)ないしは`?MASS::Boston`で見れます．
+大学の出願状況データを使います．変数の詳細は[こちらのサイト](https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html)で見れます．
 
 ``` r
 ## data source
 df <- read.csv("College_editted.csv")
 ```
 
--   観察単位: 町大学
--   変数  
-    – : (目的変数)  
-    – : per capita crime rate by town  
-    – zn: proportion of residential land zone for lots over 25,000
-    sq.ft.  
-    – indus: proportion of non-retail business acre per town  
-    – chas: Charles River dummy variable  
-    – nox: nitrogen oxides concentration  
-    – rm: average room per dwelling  
-    – age: proportion of owner-occupied units built prior to 1940  
-    – dis: weighed mean of distances to five Boston employment centers  
-    – rad: index of accessibility to radial highways  
-    – tax: full-value property-tax rate per $10,000  
-    – ptratio: pupil-teacher ratio by town  
-    – black:
-    ![1000(Bk - 0.63)^2](https://latex.codecogs.com/png.latex?1000%28Bk%20-%200.63%29%5E2 "1000(Bk - 0.63)^2")
-    where Bk is the proportion of blacks by town  
-    – lstat: lower status of the population (percent)
+-   観察単位: 大学
+-   変数
+    -   `Private`: 私立ダミー
+    -   `Apps`: 出願者数 **(目的変数)**
+    -   `Accept`: 合格者数
+    -   `Enroll`: 入学者数
+    -   `Top10perc`: 上位10％の高校出身者の割合
+    -   `Top25perc`: 上位25％の高校出身者の割合
+    -   `F.Undergrad`: 全日制の学部生の人数
+    -   `P.Undergrad`: 定時制の学部生の人数
+    -   `Outstate`: 州外の学生にかかる追加授業料
+    -   `Room.Board`: 学生寮の費用
+    -   `Books`: 教科書の推定費用
+    -   `Personal`: 推定個人費用
+    -   `PhD`: 博士課程の学科の割合
+    -   `Terminal`: 最終学位の学科の割合
+    -   `S.F.Ratio`: 学生/学科の割合
+    -   `perc.alumni`: 寄付している卒業生の割合
+    -   `Expend`: 学生あたりの指導費用
+    -   `Grad.Rate`: 卒業率
 
 記述統計を見てみましょう．
 
